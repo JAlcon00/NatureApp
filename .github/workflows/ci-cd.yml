@@ -119,7 +119,7 @@ jobs:
 
       - name: 🚀 Deploy to Railway (Frontend Service)
         env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_FRONTEND }}
         run: |
           railway link --project ${{ secrets.RAILWAY_PROJECT_ID }}
           railway up --service ${{ secrets.RAILWAY_SERVICE_NAME }} --detach
