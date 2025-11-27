@@ -102,7 +102,7 @@ jobs:
           echo "📦 Image: ${{ steps.meta.outputs.tags }}"
 
   # ============================================
-  # JOB 3: DEPLOY A RAILWAY
+  # JOB 3: DEPLOY A RAILWAY USANDO IMAGEN DOCKER
   # ============================================
   deploy:
     name: 🚀 Deploy to Railway
@@ -117,17 +117,20 @@ jobs:
       - name: 🚂 Install Railway CLI
         run: npm install -g @railway/cli
 
-      - name: 🚀 Deploy to Railway (Frontend Service)
+      - name: 🐳 Deploy Docker Image to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_FRONTEND }}
         run: |
           railway link --project ${{ secrets.RAILWAY_PROJECT_ID }}
-          railway up --service ${{ secrets.RAILWAY_SERVICE_NAME }} --detach
+          railway up --service ${{ secrets.RAILWAY_SERVICE_NAME }} \
+            --dockerfile \
+            --detach
         continue-on-error: false
 
       - name: ✅ Deployment success
         run: |
           echo "🎉 Deployment to Railway completed!"
+          echo "📦 Using Docker image from GHCR"
           echo "🌐 Frontend URL: ${{ secrets.FRONTEND_URL }}"
           echo "🔧 Backend URL: https://natureapi-production.up.railway.app"
 
