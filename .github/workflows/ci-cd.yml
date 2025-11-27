@@ -119,7 +119,7 @@ jobs:
 
       - name: 🐳 Deploy Docker Image to Railway
         env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_FRONTEND }}
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
           railway link --project ${{ secrets.RAILWAY_PROJECT_ID }}
           railway up --service ${{ secrets.RAILWAY_SERVICE_NAME }} \
