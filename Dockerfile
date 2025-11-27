@@ -23,19 +23,26 @@ RUN npm run build -- --configuration production
 # ========================================
 FROM nginx:alpine
 
+# Instalar gettext para envsubst (reemplazo de variables)
+RUN apk add --no-cache gettext
+
 # Copiar archivos compilados desde la etapa de build
 # Angular 20+ genera la carpeta en dist/NatureApp/browser
 COPY --from=build /app/dist/NatureApp/browser /usr/share/nginx/html
 
-# Copiar configuración personalizada de Nginx
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copiar configuración de Nginx como template
+COPY nginx.conf /etc/nginx/conf.d/default.conf.template
 
-# Exponer el puerto 80
-EXPOSE 80
+# Copiar script de inicio
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
 
-# Health check para verificar que el servidor está funcionando
+# Exponer el puerto (Railway lo asigna dinámicamente)
+EXPOSE $PORT
+
+# Health check dinámico
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --quiet --tries=1 --spider http://localhost:80/ || exit 1
+  CMD wget --quiet --tries=1 --spider http://localhost:${PORT:-80}/ || exit 1
 
-# Comando para iniciar Nginx en primer plano
-CMD ["nginx", "-g", "daemon off;"]
+# Usar script personalizado para iniciar Nginx
+ENTRYPOINT ["/docker-entrypoint.sh"]
