@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NatureApiService } from '../../../core/services/nature-api.service';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
-import { PlaceDetail } from '../../../core/models';
+import { PlaceDetail, AISummary } from '../../../core/models';
 
 @Component({
   selector: 'app-place-detail',
@@ -25,6 +25,111 @@ import { PlaceDetail } from '../../../core/models';
       </div>
 
       <div class="detail-content">
+        <!-- Resumen con IA -->
+        <div class="ai-summary-section">
+          <div class="ai-card">
+            <div class="ai-sparkle-bg"></div>
+            <div class="ai-header">
+              <div class="ai-icon-wrapper">
+                <svg class="ai-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" 
+                        fill="currentColor" opacity="0.3"/>
+                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" 
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="ai-header-text">
+                <h2>Resumen Inteligente</h2>
+                <p class="ai-subtitle">Generado con IA · GPT-4o Mini</p>
+              </div>
+            </div>
+            
+            <div class="ai-body">
+              <button 
+                class="btn-ai" 
+                (click)="generateAISummary()" 
+                [disabled]="loadingAI"
+                *ngIf="!aiSummary && !loadingAI && !aiError">
+                <span class="btn-icon">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z" stroke="currentColor" stroke-width="2" 
+                          stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                <span class="btn-text">Generar Resumen</span>
+              </button>
+              
+              <div class="ai-loading" *ngIf="loadingAI">
+                <div class="loading-wrapper">
+                  <div class="dot-pulse">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                  </div>
+                  <p>Analizando información del lugar...</p>
+                  <span class="loading-subtext">Esto puede tardar unos segundos</span>
+                </div>
+              </div>
+              
+              <div class="ai-content" *ngIf="aiSummary && !loadingAI">
+                <div class="ai-badge">
+                  <svg class="badge-icon" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" 
+                          stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span>Verificado por IA</span>
+                </div>
+                
+                <div class="ai-summary-text" [innerHTML]="formatSummary(aiSummary.summary)"></div>
+                
+                <div class="ai-footer">
+                  <div class="ai-metadata">
+                    <div class="metadata-chip">
+                      <svg class="chip-icon" viewBox="0 0 24 24" fill="none">
+                        <path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" 
+                              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      <span>{{ aiSummary.model }}</span>
+                    </div>
+                    <div class="metadata-chip">
+                      <svg class="chip-icon" viewBox="0 0 24 24" fill="none">
+                        <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" 
+                              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      <span>{{ formatDate(aiSummary.generatedAt) }}</span>
+                    </div>
+                  </div>
+                  <button class="btn-regenerate" (click)="generateAISummary()">
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" 
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Regenerar
+                  </button>
+                </div>
+              </div>
+              
+              <div class="ai-error" *ngIf="aiError && !loadingAI">
+                <div class="error-content">
+                  <svg class="error-icon" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" 
+                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <h3>No se pudo generar el resumen</h3>
+                  <p>{{ aiError }}</p>
+                  <button class="btn-retry" (click)="generateAISummary()">
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" 
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Intentar de nuevo
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Información principal -->
         <div class="main-info-section">
           <div class="info-card">
@@ -179,6 +284,11 @@ export class PlaceDetailComponent implements OnInit {
 
   place: PlaceDetail | null = null;
   loading = false;
+  
+  // Propiedades para IA
+  aiSummary: AISummary | null = null;
+  loadingAI = false;
+  aiError: string | null = null;
 
   ngOnInit() {
     this.route.params.subscribe(params => {
@@ -200,6 +310,27 @@ export class PlaceDetailComponent implements OnInit {
         console.error('Error loading place detail:', error);
         this.place = null;
         this.loading = false;
+      }
+    });
+  }
+
+  generateAISummary() {
+    if (!this.place) return;
+    
+    // Limpiar estado anterior
+    this.aiSummary = null;
+    this.aiError = null;
+    this.loadingAI = true;
+    
+    this.natureApi.getPlaceSummary(this.place.id).subscribe({
+      next: (summary) => {
+        this.aiSummary = summary;
+        this.loadingAI = false;
+      },
+      error: (error) => {
+        console.error('Error generating AI summary:', error);
+        this.aiError = 'No se pudo generar el resumen. Por favor, intenta de nuevo.';
+        this.loadingAI = false;
       }
     });
   }
@@ -239,5 +370,27 @@ export class PlaceDetailComponent implements OnInit {
   openPhoto(url: string) {
     // En una app más completa, abriríamos un modal o lightbox
     window.open(url, '_blank');
+  }
+
+  formatSummary(summary: string): string {
+    // Convertir el texto plano en HTML con mejor formato
+    return summary
+      .split('\n\n')
+      .map(paragraph => {
+        // Detectar listas
+        if (paragraph.includes('- ')) {
+          const items = paragraph.split('\n').filter(line => line.trim());
+          const listItems = items.map(item => {
+            if (item.trim().startsWith('- ')) {
+              return `<li>${item.trim().substring(2)}</li>`;
+            }
+            return `<p class="list-intro">${item}</p>`;
+          }).join('');
+          return `<ul>${listItems}</ul>`;
+        }
+        // Párrafos normales
+        return `<p>${paragraph}</p>`;
+      })
+      .join('');
   }
 }

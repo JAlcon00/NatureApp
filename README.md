@@ -2,6 +2,13 @@
 
 Una aplicación web moderna desarrollada con **Angular 20** que permite descubrir y explorar los lugares naturales más hermosos de México. Interfaz interactiva con mapas, navegación intuitiva y diseño responsivo para explorar parques nacionales, cascadas, cenotes, miradores y senderos.
 
+## 🚀 Demo en Vivo
+
+- **Frontend**: [Desplegado en Railway](https://tu-url.railway.app)
+- **Backend API**: [https://natureapi-production.up.railway.app](https://natureapi-production.up.railway.app)
+- **Documentación API**: [API_DOCUMENT.md](./API_DOCUMENT.md)
+- **Guía de Despliegue**: [DEPLOYMENT.md](./DEPLOYMENT.md)
+
 ## 🌟 Características Principales
 
 - ✅ **Exploración interactiva** de lugares naturales con mapas de Mapbox
@@ -13,6 +20,8 @@ Una aplicación web moderna desarrollada con **Angular 20** que permite descubri
 - ✅ **Arquitectura modular** con componentes reutilizables
 - ✅ **Diseño moderno** con SCSS y componentes standalone
 - ✅ **Carga optimizada** con lazy loading y performance mejorado
+- ✅ **CI/CD con GitHub Actions** - Deploy automático
+- ✅ **Dockerizado** - Nginx + Angular optimizado
 
 ## 🏗️ Arquitectura del Frontend
 

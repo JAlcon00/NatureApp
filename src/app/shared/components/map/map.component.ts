@@ -48,7 +48,10 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       container: this.mapContainer.nativeElement,
       style: 'mapbox://styles/mapbox/outdoors-v12', // Ideal para naturaleza
       center: this.center,
-      zoom: this.zoom
+      zoom: this.zoom,
+      trackResize: true,
+      // Desactivar telemetría para evitar warnings de content blocker
+      collectResourceTiming: false
     });
 
     this.map.on('load', () => {
@@ -63,26 +66,63 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   private addPlaceMarkers(): void {
     this.places.forEach(place => {
       if (place.latitude && place.longitude) {
-        // Crear popup con información del lugar
-        const popup = new mapboxgl.Popup({ offset: 25 })
-          .setHTML(`
+        const accessibilityIcon = place.accessible ? '✓' : '✗';
+        const accessibilityClass = place.accessible ? 'accessible' : 'not-accessible';
+        
+        // Crear popup con información completa del lugar
+        const popup = new mapboxgl.Popup({ 
+          offset: 35,
+          maxWidth: '340px',
+          className: 'custom-popup',
+          anchor: 'bottom',
+          closeButton: true,
+          closeOnClick: false
+        }).setHTML(`
             <div class="map-popup">
-              <h4>${place.name}</h4>
-              <p>${place.description || 'Sin descripción disponible'}</p>
-              <div class="popup-meta">
-                <span class="category">${place.category}</span>
-                <span class="elevation">${place.elevationMeters}m</span>
+              <div class="popup-header">
+                <h4>${place.name}</h4>
+                <span class="category-badge">${this.getMarkerIcon(place.category)} ${place.category}</span>
+              </div>
+              
+              <div class="popup-content">
+                <p class="description">${place.description || 'Sin descripción disponible'}</p>
+                
+                <div class="popup-info">
+                  <div class="info-item">
+                    <span class="icon">🏔️</span>
+                    <span class="text"><strong>Elevación:</strong> ${place.elevationMeters}m</span>
+                  </div>
+                  
+                  <div class="info-item">
+                    <span class="icon">💰</span>
+                    <span class="text"><strong>Entrada:</strong> $${place.entryFee} MXN</span>
+                  </div>
+                  
+                  <div class="info-item ${accessibilityClass}">
+                    <span class="icon">♿</span>
+                    <span class="text"><strong>Accesible:</strong> ${accessibilityIcon}</span>
+                  </div>
+                  
+                  <div class="info-item">
+                    <span class="icon">🕐</span>
+                    <span class="text"><strong>Horario:</strong> ${place.openingHours}</span>
+                  </div>
+                </div>
+                
+                <a href="/places/${place.id}" class="popup-link" onclick="event.preventDefault(); window.location.href='/places/${place.id}'">
+                  Ver detalles completos →
+                </a>
               </div>
             </div>
           `);
 
-        // Crear marcador personalizado
+        // Crear marcador personalizado con animación
         const markerElement = document.createElement('div');
         markerElement.className = 'custom-marker';
-        markerElement.style.width = '60px';
-        markerElement.style.height = '60px';
-        markerElement.style.fontSize = '40px';
-        markerElement.innerHTML = this.getMarkerIcon(place.category);
+        markerElement.innerHTML = `
+          <div class="marker-icon">${this.getMarkerIcon(place.category)}</div>
+          <div class="marker-pulse"></div>
+        `;
 
         new mapboxgl.Marker(markerElement)
           .setLngLat([place.longitude, place.latitude])

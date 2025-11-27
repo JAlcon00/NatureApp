@@ -1,0 +1,39 @@
+# Node modules
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Angular
+/dist
+/tmp
+/out-tsc
+/.angular/cache
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+.github/
+
+# Tests
+/coverage
+*.spec.ts
+karma.conf.js
+
+# Documentation
+*.md
+!README.md
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# OS files
+.DS_Store
+Thumbs.db

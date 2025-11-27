@@ -46,8 +46,6 @@ Thumbs.db
 .env.local
 .env.production
 .env.development
-environment.prod.ts
-environment.staging.ts
 
-# Configuration files with sensitive data
+# Configuration files with sensitive data (solo el config.json, NO los environment.ts)
 /public/assets/config.json

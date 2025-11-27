@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map, forkJoin, switchMap } from 'rxjs';
-import { Place, PlaceDetail, Trail } from '../models';
-import { environment } from '../constants/environment';
+import { Place, PlaceDetail, Trail, AISummary } from '../models';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -102,5 +102,13 @@ export class NatureApiService {
         )
       )
     );
+  }
+
+  /**
+   * Obtener resumen generado por IA (GPT-4o-mini)
+   * GET /api/places/{id}/summary
+   */
+  getPlaceSummary(id: number): Observable<AISummary> {
+    return this.http.get<AISummary>(`${this.baseUrl}/places/${id}/summary`);
   }
 }

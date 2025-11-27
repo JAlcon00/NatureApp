@@ -1,0 +1,18 @@
+{
+  "/api": {
+    "target": "https://natureapi-production.up.railway.app",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "pathRewrite": {
+      "^/api": "/api"
+    },
+    "onProxyRes": [
+      {
+        "headers": {
+          "Access-Control-Allow-Origin": "*"
+        }
+      }
+    ]
+  }
+}

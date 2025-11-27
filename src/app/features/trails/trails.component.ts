@@ -37,7 +37,10 @@ import { Trail } from '../../core/models';
         </div>
 
         <div class="trails-grid" *ngIf="allTrails.length > 0">
-          <div class="trail-card" *ngFor="let trail of allTrails" (click)="viewPlace(trail.placeId)">
+          <div class="trail-card" 
+               *ngFor="let trail of allTrails" 
+               [class.disabled]="!trail.placeId"
+               (click)="viewPlace(trail.placeId)">
             <div class="trail-header">
               <h3>{{ trail.name }}</h3>
               <span class="difficulty-badge" [class]="getDifficultyClass(trail.difficulty)">
@@ -75,14 +78,16 @@ import { Trail } from '../../core/models';
                   <span class="icon">📍</span>
                   <div class="info-content">
                     <span class="label">Lugar</span>
-                    <span class="value place-name">{{ trail.placeName }}</span>
+                    <span class="value place-name">{{ trail.placeName || 'No disponible' }}</span>
                   </div>
                 </div>
               </div>
             </div>
             
             <div class="trail-footer">
-              <button class="btn btn-detail">Ver Lugar Completo →</button>
+              <button class="btn btn-detail" [disabled]="!trail.placeId">
+                {{ trail.placeId ? 'Ver Lugar Completo →' : 'Lugar no disponible' }}
+              </button>
             </div>
           </div>
         </div>
@@ -125,7 +130,11 @@ export class TrailsComponent implements OnInit {
     });
   }
 
-  viewPlace(placeId: number) {
+  viewPlace(placeId: number | undefined) {
+    if (!placeId) {
+      console.error('Place ID is undefined');
+      return;
+    }
     this.router.navigate(['/places', placeId]);
   }
 
